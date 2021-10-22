@@ -80,7 +80,8 @@ class ShippingMethodManagement
         }
     }
 
-    public function isNeedRecreate() {
+    public function isNeedRecreate()
+    {
         return false;
     }
 }

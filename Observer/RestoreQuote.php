@@ -182,7 +182,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         return true;
     }
 
-    public function shouldSkipFurtherEventHandling() {
+    public function shouldSkipFurtherEventHandling()
+    {
         return true;
     }
 }
