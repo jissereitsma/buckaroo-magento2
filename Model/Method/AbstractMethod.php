@@ -704,6 +704,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $transaction = $transactionBuilder->build();
 
+        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($transaction->getBody(), true));
+
         $response = $this->orderTransaction($transaction);
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);

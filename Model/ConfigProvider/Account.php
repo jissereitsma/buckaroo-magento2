@@ -20,8 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\ScopeInterface;
 
 class Account extends AbstractConfigProvider
@@ -215,6 +217,31 @@ class Account extends AbstractConfigProvider
         return $this->methodConfigProviderFactory->get($methodCode);
     }
 
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param Store $store
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
+    public function getParsedLabel(Store $store, OrderInterface $order)
+    {
+        $label = $this->getTransactionLabel($store);
+
+        if ($label === null) {
+            return $store->getName();
+        }
+
+        $label = preg_replace('/\{order_number\}/', $order->getIncrementId(), $label);
+        $label = preg_replace('/\{shop_name\}/', $store->getName(), $label);
+
+        $products = $order->getItems();
+        if (count($products)) {
+            $label = preg_replace('/\{product_name\}/', array_values($products)[0]->getName(), $label);
+        }
+        return mb_substr($label, 0, 244);
+    }
 
     /**
      * get Active
@@ -579,78 +606,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance
-     */
-    public function getSecondChance($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Timing
-     */
-    public function getSecondChanceTiming($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TIMING,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Timing2
-     */
-    public function getSecondChanceTiming2($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TIMING2,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Template
-     */
-    public function getSecondChanceTemplate($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Template2
-     */
-    public function getSecondChanceTemplate2($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE2,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get No Send Second Chance
-     */
-    public function getNoSendSecondChance($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

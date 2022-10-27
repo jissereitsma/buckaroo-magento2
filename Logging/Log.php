@@ -20,6 +20,9 @@
 namespace Buckaroo\Magento2\Logging;
 
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Session\SessionManager;
+use Monolog\DateTimeImmutable;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 
@@ -45,11 +48,13 @@ class Log extends Logger
     /**
      * Log constructor.
      *
-     * @param string             $name
+     * @param $name
      * @param DebugConfiguration $debugConfiguration
-     * @param Mail               $mail
-     * @param HandlerInterface[] $handlers
-     * @param callable[]         $processors
+     * @param Session $checkoutSession
+     * @param SessionManager $sessionManager
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param HandlerInterface $handlers
+     * @param callable[] $processors
      */
     public function __construct(
         $name,
@@ -65,13 +70,15 @@ class Log extends Logger
         $this->session           = $sessionManager;
         $this->customerSession    = $customerSession;
 
+        $name = $name ?? 'buckaroo';
+
         parent::__construct($name, $handlers, $processors);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addRecord(int $level, string $message, array $context = []): bool
+    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
