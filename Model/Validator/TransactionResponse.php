@@ -177,11 +177,11 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
 
         $controlHashReference = $xPath->query('//*[@Id="_control"]')->item(0);
         $controlHashCanonical = $controlHashReference->C14N(true, false);
-        $controlHash          = base64_encode(pack('H*', sha1($controlHashCanonical)));
+        $controlHash          = base64_encode(pack('H*', hash('sha256', $controlHashCanonical)));
 
         $bodyHashReference = $xPath->query('//*[@Id="_body"]')->item(0);
         $bodyHashCanonical = $bodyHashReference->C14N(true, false);
-        $bodyHash          = base64_encode(pack('H*', sha1($bodyHashCanonical)));
+        $bodyHash          = base64_encode(pack('H*', hash('sha256', $bodyHashCanonical)));
 
         if (in_array($controlHash, $digestValues) === true && in_array($bodyHash, $digestValues) === true) {
             $verified = true;

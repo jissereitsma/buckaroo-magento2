@@ -117,7 +117,7 @@ if (version_compare(PHP_VERSION, '8', '<')) {
 
             //Sign signedinfo with privatekey
             $signature2 = '';
-            openssl_sign($signedINFO, $signature2, $this->pemdata);
+            openssl_sign($signedINFO, $signature2, $this->pemdata, OPENSSL_ALGO_SHA256);
 
             //Add signature value to xml document
             $sigValQuery = '//wsse:Security/sig:Signature/sig:SignatureValue';
@@ -132,17 +132,18 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             $sigNodeSet = $sigQueryNodeset->item(0);
 
             //Create keyinfo element and Add public key to KeyIdentifier element
-            $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#","KeyInfo");
+            $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
             $SecurityTokenReference = $domDocument->createElementNS(
-                'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd','SecurityTokenReference'
+                'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'SecurityTokenReference'
             );
             $KeyIdentifier = $domDocument->createElement("KeyIdentifier");
 
-            $thumbprint = $this->sha1_thumbprint($this->pemdata);
+            $thumbprint = $this->sha256_thumbprint($this->pemdata);  // Updated to sha256_thumbprint
             $KeyIdentifier->nodeValue = $thumbprint;
             $KeyIdentifier->setAttribute(
                 'ValueType',
-                'http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#ThumbPrintSHA1'
+                'http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#ThumbPrintSHA256' // Updated to ThumbPrintSHA256
             );
             $SecurityTokenReference->appendChild($KeyIdentifier);
             $KeyTypeNode->appendChild($SecurityTokenReference);
@@ -168,22 +169,22 @@ if (version_compare(PHP_VERSION, '8', '<')) {
 
         //Calculate digest value (sha1 hash)
         private function CalculateDigestValue($input) {
-            $digValueControl = base64_encode(pack("H*", sha1($input)));
+            $digValueControl = base64_encode(pack("H*", hash('sha256', $input)));
 
             return $digValueControl;
         }
 
-        private function sha1_thumbprint($fullcert) {
+        private function sha256_thumbprint($fullcert) {
             // First, strip out only the right section
             openssl_x509_export($fullcert, $pem);
 
-            // Then calculate sha1 of base64 decoded cert
+            // Then calculate sha256 of base64 decoded cert
             $pem = preg_replace('/\-+BEGIN CERTIFICATE\-+/', '', $pem);
             $pem = preg_replace('/\-+END CERTIFICATE\-+/', '', $pem);
             $pem = trim($pem);
             $pem = str_replace(array("\n\r","\n","\r"), '', $pem);
             $bin = base64_decode($pem);
-            return sha1($bin);
+            return hash('sha256', $bin);
         }
     }
 
@@ -280,7 +281,7 @@ if (version_compare(PHP_VERSION, '8', '<')) {
 
             //Sign signedinfo with privatekey
             $signature2 = '';
-            openssl_sign($signedINFO, $signature2, $this->pemdata);
+            openssl_sign($signedINFO, $signature2, $this->pemdata, OPENSSL_ALGO_SHA256);
 
             //Add signature value to xml document
             $sigValQuery = '//wsse:Security/sig:Signature/sig:SignatureValue';
@@ -301,11 +302,11 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             );
             $KeyIdentifier = $domDocument->createElement("KeyIdentifier");
 
-            $thumbprint = $this->sha1_thumbprint($this->pemdata);
+            $thumbprint = $this->sha256_thumbprint($this->pemdata);  // Updated to sha256_thumbprint
             $KeyIdentifier->nodeValue = $thumbprint;
             $KeyIdentifier->setAttribute(
                 'ValueType',
-                'http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#ThumbPrintSHA1'
+                'http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#ThumbPrintSHA256' // Updated to ThumbPrintSHA256
             );
             $SecurityTokenReference->appendChild($KeyIdentifier);
             $KeyTypeNode->appendChild($SecurityTokenReference);
@@ -331,22 +332,22 @@ if (version_compare(PHP_VERSION, '8', '<')) {
 
         //Calculate digest value (sha1 hash)
         private function CalculateDigestValue($input) {
-            $digValueControl = base64_encode(pack("H*", sha1($input)));
+            $digValueControl = base64_encode(pack("H*", hash('sha256', $input)));
 
             return $digValueControl;
         }
 
-        private function sha1_thumbprint($fullcert) {
+        private function sha256_thumbprint($fullcert) {
             // First, strip out only the right section
             openssl_x509_export($fullcert, $pem);
 
-            // Then calculate sha1 of base64 decoded cert
+            // Then calculate sha256 of base64 decoded cert
             $pem = preg_replace('/\-+BEGIN CERTIFICATE\-+/', '', $pem);
             $pem = preg_replace('/\-+END CERTIFICATE\-+/', '', $pem);
             $pem = trim($pem);
             $pem = str_replace(array("\n\r","\n","\r"), '', $pem);
             $bin = base64_decode($pem);
-            return sha1($bin);
+            return hash('sha256', $bin);
         }
     }
 }
