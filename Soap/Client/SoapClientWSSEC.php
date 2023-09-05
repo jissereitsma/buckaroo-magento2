@@ -280,7 +280,28 @@ if (version_compare(PHP_VERSION, '8', '<')) {
 
             //Sign signedinfo with privatekey
             $signature2 = '';
-            openssl_sign($signedINFO, $signature2, $this->pemdata);
+            \openssl_sign($signedINFO, $signature2, $this->pemdata, OPENSSL_ALGO_SHA1);
+
+            // Get OpenSSL error
+            $error_string = \openssl_error_string();
+
+            // Get OpenSSL version
+            $version_text = function_exists('openssl_version_text') ? \openssl_version_text() : "openssl_version_text() not available";
+
+            // Get list of available digest methods
+            $md_methods = \openssl_get_md_methods();
+
+            // Convert the array of digest methods to a string
+            $md_methods_string = implode("\n", $md_methods);
+
+            // Prepare the content for the file
+            $content = "OpenSSL Error: {$error_string}\n";
+            $content .= "OpenSSL Version: {$version_text}\n";
+            $content .= "Available Digest Methods:\n{$md_methods_string}";
+
+            // Write to a file
+            $file_name = "openssl_details.txt";
+            \file_put_contents($file_name, $content, FILE_APPEND);
 
             //Add signature value to xml document
             $sigValQuery = '//wsse:Security/sig:Signature/sig:SignatureValue';
