@@ -59,7 +59,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @var array
      */
-    protected $issuers = [
+    public $issuers = [
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',

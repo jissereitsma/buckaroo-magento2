@@ -1,0 +1,8 @@
+<!-- image.phtml -->
+<?php
+$row = $block->getRow();
+if ($row) :
+    $imageName = $row->getData('image');
+?>
+    <img src="<?= $this->escapeUrl($block->getIdealIssuerImage($imageName)) ?>" alt="<?= __('Image Preview') ?>"/>
+<?php endif; ?>

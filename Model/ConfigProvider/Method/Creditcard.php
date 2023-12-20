@@ -71,7 +71,7 @@ class Creditcard extends AbstractConfigProvider
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP            = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
 
-    protected $issuers = [
+    public $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,

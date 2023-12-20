@@ -47,7 +47,7 @@ class Emandate extends AbstractConfigProvider
     /**
      * @var array
      */
-    protected $issuers = [
+    public $issuers = [
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
