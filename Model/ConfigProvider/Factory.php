@@ -22,11 +22,11 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface as BuckarooConfigProviderInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Phrase;
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 
 class Factory
 {
@@ -34,11 +34,6 @@ class Factory
      * @var ObjectManagerInterface
      */
     protected ObjectManagerInterface $objectManager;
-
-    /**
-     * @var BuckarooLoggerInterface $logger
-     */
-    public BuckarooLoggerInterface $logger;
 
     /**
      * @var array
@@ -51,12 +46,10 @@ class Factory
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
-        BuckarooLoggerInterface $logger,
         array $configProviders = []
     ) {
         $this->objectManager = $objectManager;
         $this->configProviders = $configProviders;
-        $this->logger = $logger;
     }
 
     /**
@@ -88,7 +81,8 @@ class Factory
         }
 
         if (empty($configProviderClass)) {
-            $this->logger->addDebug("Provider Type: " . $providerType);
+            $buckarooLog = $this->objectManager->get(BuckarooLoggerInterface::class);
+            $buckarooLog->addDebug("[PROVIDER_TYPE] = " . $configProviderType);
             throw new BuckarooException(
                 new Phrase(
                     'Unknown ConfigProvider type requested: %1.',
