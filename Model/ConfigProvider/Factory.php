@@ -62,15 +62,23 @@ class Factory
      */
     public function get(string $providerType): ConfigProviderInterface
     {
+        $buckarooLog = $this->objectManager->get(BuckarooLoggerInterface::class);
+
         if (empty($this->configProviders)) {
             throw new \LogicException('ConfigProvider adapter is not set.');
         }
 
         $isPaymentMethod = false;
+
+        $buckarooLog->addDebug("[PROVIDER_TYPE_1] = " . $providerType);
         if (strpos($providerType, 'buckaroo_magento2_') !== false) {
             $providerType = str_replace('buckaroo_magento2_', '', $providerType);
             $isPaymentMethod = true;
         }
+
+        $buckarooLog->addDebug("[PROVIDER_TYPE_2] = " . $providerType);
+
+        $configProviderClass = null;
 
         foreach ($this->configProviders as $configProviderMetaData) {
             $configProviderType = $configProviderMetaData['type'];
@@ -80,9 +88,27 @@ class Factory
             }
         }
 
+        $buckarooLog->addDebug("[PROVIDER_CLASS_2] = " . $providerType);
+
         if (empty($configProviderClass)) {
-            $buckarooLog = $this->objectManager->get(BuckarooLoggerInterface::class);
-            $buckarooLog->addDebug("[PROVIDER_TYPE] = " . $configProviderType);
+            $depth = 10;
+            $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, $depth);
+            $logTrace = [];
+
+            for ($cnt = 1; $cnt < $depth; $cnt++) {
+                if (isset($trace[$cnt])) {
+                    try {
+                        /** @phpstan-ignore-next-line */
+                        $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " . $trace[$cnt]['line'] . " " .
+                            $trace[$cnt]['class'] . '->' .
+                            $trace[$cnt]['function'] . '()';
+                    } catch (\Exception $e) {
+                        $logTrace[] = json_encode($trace[$cnt]);
+                    }
+                }
+            }
+            $buckarooLog->addDebug("[PROVIDER_TYPE_3] = " . $providerType);
+            $buckarooLog->addDebug("[LOG_TRACE] = " . json_encode($logTrace));
             throw new BuckarooException(
                 new Phrase(
                     'Unknown ConfigProvider type requested: %1.',
